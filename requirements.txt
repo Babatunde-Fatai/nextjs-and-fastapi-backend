@@ -1,2 +1,11 @@
 fastapi==0.100.1
 uvicorn[standard]==0.23.2
+sqlalchemy
+pydantic
+langchain
+langchain-community
+icecream
+langchain_openai
+langchain-postgres
+
+

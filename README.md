@@ -71,6 +71,7 @@ yarn dev
 # or
 pnpm dev
 ```
+uvicorn api.index:app --reload --port 7000
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
