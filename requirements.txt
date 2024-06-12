@@ -7,5 +7,7 @@ langchain-community
 icecream
 langchain_openai
 langchain-postgres
-
+langgraph 
+langchainhub 
+langchain_experimental
 
