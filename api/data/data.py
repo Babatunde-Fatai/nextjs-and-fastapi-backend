@@ -1,4 +1,4 @@
-dummy_data = {
+Requisition_data = {
   "REQ1234": {
     "requisition_number": "REQ1234",
     "status": "PR to be assigned",
@@ -343,3 +343,109 @@ dummy_data = {
 }
 
 }
+
+
+Suppliers_info = {
+    "supplier_A": {
+    "supplier_name": "Acme Corporation (Server maintenance)",
+    "industry": "Server maintenance services",
+    "performance_data": {
+      "on_time_delivery_rate": 0.92,
+      "quality_defect_rate": 0.03,
+      "communication_score": 4.5,
+      "average_inquiry_response_time": "2 business hours",
+      "customer_satisfaction_rating": 8.7,
+    },
+  },
+  "supplier_B": {
+    "supplier_name": "Office Depot (Office supplies)",
+    "industry": "Office supplies",
+    "performance_data": {
+      "on_time_delivery_rate": 0.98,
+      "quality_defect_rate": 0.01,
+      "communication_score": 4.2,
+      "order_fulfillment_accuracy": 0.99,
+      "competitive_pricing_index": "Average",
+    },
+  },
+  "supplier_C": {
+    "supplier_name": "CloudTech Solutions (Cloud services)",
+    "industry": "Cloud service providers",
+    "performance_data": {
+      "uptime_guarantee": 0.9995,
+      "security_compliance": ["SOC 2 Type II", "PCI DSS"],
+      "customer_support_satisfaction": 0.9,
+      "average_support_resolution_time": "4 hours",
+      "scalability_and_flexibility": "Offered",
+    },
+  },
+  "supplier_D": {
+    "supplier_name": "Marketing Pro (Marketing materials)",
+    "industry": "Marketing campaign materials",
+    "performance_data": {
+      "portfolio": "Available",
+      "creative_capabilities": "Strong",
+      "experience_with_materials": ["Brochures", "Videos"],
+      "client_testimonials": "Provided",
+      "pricing_competitiveness": "Market competitive",
+    },
+  },
+  "supplier_E": {
+    "supplier_name": "Reliable Software (Software licenses)",
+    "industry": "Software licensing",
+    "performance_data": {
+      "software_library_size": "Extensive",
+      "licensing_procurement_process": "Streamlined",
+      "customer_support_expertise": "Available",
+      "pricing_competitiveness": "Competitive",
+      "license_legitimacy": "Guaranteed",
+    },
+  },
+  "supplier_F": {
+    "supplier_name": "Global Networks (Network switches)",
+    "industry": "Network switches",
+    "performance_data": {
+      "product_range": "Wide",
+      "warranty_coverage": "Provided",
+      "technical_support_expertise": "Available",
+      "pricing_and_lead_times": "Competitive",
+      "customer_reviews": "Positive",
+    },
+  },
+  "supplier_G": {
+    "supplier_name": "SecurityFirst (Security software)",
+    "industry": "Security software",
+    "performance_data": {
+      "threat_prevention_effectiveness": "High",
+      "deployment_ease": "Easy",
+      "software_updates": "Regular",
+      "customer_support_expertise": "Available",
+      "industry_certifications": "Provided",
+    },
+  },
+  "supplier_H": {
+    "supplier_name": "Staples (Office supplies & furniture)",
+    "industry": "Office supplies and furniture",
+    "performance_data": {
+      "online_catalog": "Extensive",
+      "pricing_and_discounts": "Competitive",
+      "order_fulfillment": "Efficient",
+      "online_platform": "User-friendly",
+      "sustainable_practices": "Offered (optional)",
+    }
+  }
+    
+}
+
+people = [
+    {"name": "John Doe", "age": 35, "city": "New York"},
+    {"name": "Jane Smith", "age": 28, "city": "Los Angeles"},
+    {"name": "Michael Johnson", "age": 42, "city": "Chicago"},
+    {"name": "Emily Davis", "age": 31, "city": "San Francisco"},
+    {"name": "David Wilson", "age": 27, "city": "Boston"},
+    {"name": "Sophia Thompson", "age": 39, "city": "Seattle"},
+    {"name": "Daniel Anderson", "age": 25, "city": "Miami"},
+    {"name": "Babatunde Fatai", "age": 33, "city": "Dallas"},
+    {"name": "William Jackson", "age": 29, "city": "Houston"},
+    {"name": "Emma Garcia", "age": 37, "city": "Philadelphia"}
+]

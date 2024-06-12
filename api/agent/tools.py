@@ -1,6 +1,6 @@
 from langchain_core.tools import tool
 import random
-from ..data.data import dummy_data
+from ..data.data import Requisition_data, Suppliers_info, people
 
 
 # my custom tools
@@ -13,20 +13,6 @@ def to_lower_case(input:str) -> str:
 def random_number_maker(input:str) -> str:
     """Returns a random number between 0-100. input the word 'random'"""
     return random.randint(0, 100)
-
-
-people = [
-    {"name": "John Doe", "age": 35, "city": "New York"},
-    {"name": "Jane Smith", "age": 28, "city": "Los Angeles"},
-    {"name": "Michael Johnson", "age": 42, "city": "Chicago"},
-    {"name": "Emily Davis", "age": 31, "city": "San Francisco"},
-    {"name": "David Wilson", "age": 27, "city": "Boston"},
-    {"name": "Sophia Thompson", "age": 39, "city": "Seattle"},
-    {"name": "Daniel Anderson", "age": 25, "city": "Miami"},
-    {"name": "Babatunde Fatai", "age": 33, "city": "Dallas"},
-    {"name": "William Jackson", "age": 29, "city": "Houston"},
-    {"name": "Emma Garcia", "age": 37, "city": "Philadelphia"}
-]
 
 
 @tool("staff_details", return_direct=False)
@@ -52,7 +38,35 @@ def get_requisition_details(requisition_number):
              Empty dictionary if requisition not found.
   """
 
-  if requisition_number in dummy_data:
-    return dummy_data[requisition_number]
+  if requisition_number in Requisition_data:
+    return Requisition_data[requisition_number]
   else:
     return 'Details of this requisition was not found'
+  
+@tool("suppliers_details", return_direct=False)
+def get_supplier_details(search_term):
+  """
+  Searches supplier information by supplier ID or name (case-insensitive).
+
+  Args:
+      supplier_info (dict): Dictionary containing supplier data.
+      search_term (str): Supplier ID or name to search for.
+
+  Returns:
+      dict: Supplier details dictionary if found, otherwise empty dictionary.
+  """
+  supplier_info = Suppliers_info
+
+  # Improve data by converting numeric values to floats (e.g., on-time delivery rate)
+  for supplier, data in supplier_info.items():
+    for key, value in data["performance_data"].items():
+      if isinstance(value, str) and value.replace('.', '', 1).isdigit():
+        supplier_info[supplier]["performance_data"][key] = float(value)
+
+  # Search by ID or name (case-insensitive)
+  search_term = search_term.lower()
+  for supplier_id, supplier_data in supplier_info.items():
+    if (supplier_id.lower() == search_term or
+        supplier_data["supplier_name"].lower().startswith(search_term)):
+      return supplier_data
+  return 'The supplier with the detail {search_term} doesnt exist!!!'
