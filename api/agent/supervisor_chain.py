@@ -5,7 +5,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 def supervisor_chain(llm):
 
     
-    members = ["Lotto_Manager", "Coder", "Staff_Manager", "requisition_Manager"]
+    members = ["Suppliers_Manager", "requisition_Manager"]
     system_prompt = (
         "You are a supervisor tasked with managing a conversation between the"
         " following workers:  {members}. Given the following user request,"

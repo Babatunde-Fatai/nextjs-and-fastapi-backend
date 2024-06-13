@@ -10,4 +10,4 @@ langchain-postgres
 langgraph 
 langchainhub 
 langchain_experimental
-
+requests

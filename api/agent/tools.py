@@ -1,29 +1,12 @@
 from langchain_core.tools import tool
-import random
-from ..data.data import Requisition_data, Suppliers_info, people
+import csv
+from ..data.data import Requisition_data, Suppliers_info
+import pathlib
 
+hey = pathlib.Path
+# print(hey)
 
 # my custom tools
-@tool("lower_case", return_direct=False)
-def to_lower_case(input:str) -> str:
-  """Returns the input as all lower case."""
-  return input.lower()
-
-@tool("random_number", return_direct=False)
-def random_number_maker(input:str) -> str:
-    """Returns a random number between 0-100. input the word 'random'"""
-    return random.randint(0, 100)
-
-
-@tool("staff_details", return_direct=False)
-def find_the_staff(name:str):
-    """Returns a staff detail based on the name provided"""
-    similar_names = []
-    people_list = people
-    for person in people_list:
-        if name.lower() in person["name"].lower():
-            similar_names.append(person)
-    return similar_names
 
 @tool("requisition_details", return_direct=False)
 def get_requisition_details(requisition_number):
@@ -70,3 +53,30 @@ def get_supplier_details(search_term):
         supplier_data["supplier_name"].lower().startswith(search_term)):
       return supplier_data
   return 'The supplier with the detail {search_term} doesnt exist!!!'
+
+@tool("procurement_details", return_direct=False)
+def get_procurement_data(filename='..data/procurement_data.csv', search_term='', search_column="agency"):
+  """
+  Searches procurement data in a CSV file based on a search term and column.
+
+  Args:
+      filename (str): Path to the CSV file containing procurement data.
+      search_term (str): The term to search for in the specified column.
+      search_column (str, optional): The column to search in (defaults to "agency").
+
+  Returns:
+      list: List of dictionaries containing matching procurement data rows.
+  """
+
+  results = []
+  with open(filename, 'r') as csvfile:
+    reader = csv.DictReader(csvfile)
+
+    # Search by the specified column (case-insensitive)
+    search_term = search_term.lower()
+    for row in reader:
+      if row[search_column].lower() == search_term:
+        results.append(row)
+
+  return results
+

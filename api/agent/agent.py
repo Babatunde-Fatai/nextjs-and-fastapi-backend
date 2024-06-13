@@ -2,7 +2,7 @@ from langchain_openai import ChatOpenAI
 from typing import Annotated, List, Tuple, Union
 from langchain.tools import BaseTool, StructuredTool, Tool
 from langchain_experimental.tools import PythonREPLTool
-from .tools import to_lower_case, random_number_maker, find_the_staff, get_requisition_details
+from .tools import  get_requisition_details, get_supplier_details
 from .agent_creator import create_agent, agent_node
 from .supervisor_chain import supervisor_chain as SC
 from langchain_core.messages import BaseMessage, HumanMessage
@@ -11,9 +11,9 @@ from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 import operator
 from typing import Annotated, Any, Dict, List, Optional, Sequence, TypedDict
 import functools
-
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.graph import StateGraph, END
+from icecream import ic
 
 # This executes code locally, which can be unsafe
 python_repl_tool = PythonREPLTool()
@@ -21,7 +21,7 @@ python_repl_tool = PythonREPLTool()
 llm = ChatOpenAI()
 
 #import tools
-tools = [to_lower_case,random_number_maker,find_the_staff, get_requisition_details, python_repl_tool]
+tools = [get_supplier_details, get_requisition_details, python_repl_tool]
 
 members, supervisor_chain = SC(llm)
 
@@ -35,24 +35,23 @@ class AgentState(TypedDict):
     next: str
 
 
-lotto_agent = create_agent(llm, tools, "You are a senior lotto manager. you run the lotto and get random numbers")
-lotto_node = functools.partial(agent_node, agent=lotto_agent, name="Lotto_Manager")
+# lotto_agent = create_agent(llm, tools, "You are a senior lotto manager. you run the lotto and get random numbers")
+# lotto_node = functools.partial(agent_node, agent=lotto_agent, name="Lotto_Manager")
 
-staff_agent = create_agent(llm, tools, "You are an HR staff that provides details on a given member of the organization")
-staff_node = functools.partial(agent_node, agent=staff_agent, name="Staff_Manager")
+Suppliers_agent = create_agent(llm, tools, "You are an agent that manages and tracks the suppliers details for an organization")
+Suppliers_node = functools.partial(agent_node, agent=Suppliers_agent, name="Suppliers_Manager")
 
 requisition_agent = create_agent(llm, tools, "You are an AI sourcing assistant that helps us manage procurement requisitions by providing status updates, details, based on the requisition number provided")
 requisition_node = functools.partial(agent_node, agent=requisition_agent, name="requisition_Manager")
 
 ##NOTE: THIS PERFORMS ARBITRARY CODE EXECUTION. PROCEED WITH CAUTION
-code_agent = create_agent(llm, [python_repl_tool], "You may generate safe python code to analyze data and generate charts using matplotlib.")
-code_node = functools.partial(agent_node, agent=code_agent, name="Coder")
+# code_agent = create_agent(llm, [python_repl_tool], "You may generate safe python code to analyze data and generate charts using matplotlib.")
+# code_node = functools.partial(agent_node, agent=code_agent, name="Coder")
 
 workflow = StateGraph(AgentState)
-workflow.add_node("Lotto_Manager", lotto_node)
+# workflow.add_node("Lotto_Manager", lotto_node)
 workflow.add_node("requisition_Manager", requisition_node)
-workflow.add_node("Staff_Manager", staff_node)
-workflow.add_node("Coder", code_node)
+workflow.add_node("Suppliers_Manager", Suppliers_node)
 workflow.add_node("supervisor", supervisor_chain)
 
 ##Create edges
@@ -74,6 +73,7 @@ graph = workflow.compile()
 #run it
 
 config = {"recursion_limit": 20} #a config dictionary is defined for recursion limit
+
 # for s in graph.stream(
 #     {
 #         "messages": [
@@ -90,7 +90,7 @@ config = {"recursion_limit": 20} #a config dictionary is defined for recursion l
 
 
 
-def getResponse(query="Get the staff details for the staff named Babatunde"):
+def getResponse(query=""):
     final_response = graph.invoke(
     {
         "messages": [
@@ -100,5 +100,6 @@ def getResponse(query="Get the staff details for the staff named Babatunde"):
         )
 
     res = final_response['messages'][1].content
+    ic(final_response)
 
     return res

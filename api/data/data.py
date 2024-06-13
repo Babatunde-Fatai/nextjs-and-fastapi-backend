@@ -349,6 +349,10 @@ Suppliers_info = {
     "supplier_A": {
     "supplier_name": "Acme Corporation (Server maintenance)",
     "industry": "Server maintenance services",
+    "Requisition_details": {
+        "1": "REQ7590", 
+        "2": "REQ9852",
+        "3": "REQ2410"},
     "performance_data": {
       "on_time_delivery_rate": 0.92,
       "quality_defect_rate": 0.03,
@@ -436,16 +440,3 @@ Suppliers_info = {
   }
     
 }
-
-people = [
-    {"name": "John Doe", "age": 35, "city": "New York"},
-    {"name": "Jane Smith", "age": 28, "city": "Los Angeles"},
-    {"name": "Michael Johnson", "age": 42, "city": "Chicago"},
-    {"name": "Emily Davis", "age": 31, "city": "San Francisco"},
-    {"name": "David Wilson", "age": 27, "city": "Boston"},
-    {"name": "Sophia Thompson", "age": 39, "city": "Seattle"},
-    {"name": "Daniel Anderson", "age": 25, "city": "Miami"},
-    {"name": "Babatunde Fatai", "age": 33, "city": "Dallas"},
-    {"name": "William Jackson", "age": 29, "city": "Houston"},
-    {"name": "Emma Garcia", "age": 37, "city": "Philadelphia"}
-]
