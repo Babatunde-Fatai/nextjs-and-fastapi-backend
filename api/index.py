@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from .agent.agent import getResponse
+from .data.insert_to_db import populate_table
 
 # app = FastAPI(docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
 app = FastAPI(title="Sorcing Chatbot",
@@ -14,4 +15,13 @@ def getresponse(query):
 
     answer = getResponse(query)
     return answer
+
+@app.post("/post/create-table")
+def getresponse(num: int = 200):
+
+    res = populate_table(num)
+
+    
+    return res
+
 

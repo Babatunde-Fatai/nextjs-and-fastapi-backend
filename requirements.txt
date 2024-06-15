@@ -11,3 +11,7 @@ langgraph
 langchainhub 
 langchain_experimental
 requests
+Faker
+sqlalchemy
+logging
+redis
