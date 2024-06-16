@@ -7,10 +7,11 @@ import logging
 import csv
 import json
 from icecream import ic
-import uuid
+import json
 import random
 import string
 from faker import Faker
+from datetime import date
 
 fake = Faker()
 
@@ -195,7 +196,9 @@ def random_id(prefix, length=10):
     return prefix + ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
 def random_date(start_year=2019, end_year=2024):
-    return fake.date_between(start_date=f'{start_year}-01-01', end_date=f'{end_year}-12-31')
+    datez = fake.date_between(start_date= date(2019, 2, 2) , end_date=date(2024, 12, 31)) #'2019-02-02''2024-12-31'
+    # ic(datez)
+    return str(datez)
 
 def generate_unique_supplier_names(num_suppliers):
     companies = [fake.company() for _ in range(num_suppliers)]
@@ -452,65 +455,88 @@ def insert_budgets(num_budgets):
     # close_connection()
 
 
-def insert_requisitions(num_requisitions):
-    for _ in range(num_requisitions):
-        requisition_id = random_id('REQ')
-        created_by = fake.name()
-        created_date = random_date()
-        status = random.choice(['Awaiting vendor feedback', 'Approved', 'Pending', 'Canclled', 'Completed'])
-        supplier_name = fake.company()
-        items_requested = [
-            {"item": fake.word(), "quantity": random.randint(1, 100)},
-            {"item": fake.word(), "quantity": random.randint(1, 100)},
-            {"item": fake.word(), "quantity": random.randint(1, 100)},
-            {"item": fake.word(), "quantity": random.randint(1, 100)}
-        ]
-        date_sent_rfq = random_date()
-        follow_up_sent = random.choice([True, False])
-        rfq_name = fake.catch_phrase()
+def insert_requisitions(NumRequisitions):
+    try:
+        requisitions_data = []
+        for _ in range(NumRequisitions):
+            requisition_id = random_id('REQ')
+            created_by = fake.name()
+            created_date = random_date()
+            status = random.choice(['Awaiting vendor feedback', 'Approved', 'Pending', 'Canclled', 'Completed'])
+            supplier_name = fake.company()
+            items_requested = [
+                {"item": fake.word(), "quantity": random.randint(1, 100)},
+                {"item": fake.word(), "quantity": random.randint(1, 100)},
+                {"item": fake.word(), "quantity": random.randint(1, 100)},
+                {"item": fake.word(), "quantity": random.randint(1, 100)}
+            ]
+            date_sent_rfq = random_date()
+            follow_up_sent = random.choice([True, False])
+            rfq_name = fake.catch_phrase()
 
+            requisition_data = {
+                'requisition_id': requisition_id,
+                'created_by': created_by,
+                'created_date': created_date,
+                'status': status,
+                'supplier_name': supplier_name,
+                'items_requested': json.dumps(items_requested),
+                'date_sent_rfq': date_sent_rfq,
+                'follow_up_sent': follow_up_sent,
+                'rfq_name': rfq_name
+            }
 
-    insert_query = text( """
+            requisitions_data.append(requisition_data)
+
+        insert_query = text("""
             INSERT INTO requisitions (requisition_id, created_by, created_date, status, supplier_name, items_requested, date_sent_rfq, follow_up_sent, rfq_name)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """,
-            (requisition_id, created_by, created_date, status, supplier_name, items_requested, date_sent_rfq, follow_up_sent, rfq_name))
-    connection.execute(insert_query)
-            
-    connection.commit()
-    # close_connection()
+            VALUES (:requisition_id, :created_by, :created_date, :status, :supplier_name, :items_requested, :date_sent_rfq, :follow_up_sent, :rfq_name)
+        """)
 
+        connection.execute(insert_query, requisitions_data)
+        connection.commit()
+    except Exception as e:
+        print(f"An error occurred in insert_requisitions: {e}")
 
 # Function to insert purchase orders
-def insert_purchase_orders(num_purchase_orders):
-    purchase_orders = []
-    for _ in range(num_purchase_orders):
-        purchase_order_id = random_id('PO')
-        purchase_requisition_id = random_id('PR')
-        status = random.choice(['Pending', 'Approved', 'Rejected'])
-        created_date = random_date()
-        approved_date = random_date() if status == 'Approved' else None
-        supplier_id = random_id('SUP')
-        items = [
-            {"item_id": random_id('IT'), "description": fake.word(), "quantity": random.randint(1, 100), "unit_price": round(random.uniform(10, 1000), 2)} for _ in range(3)
-        ]
+def insert_purchase_orders(NumPurchaseOrders):
+    if NumPurchaseOrders is None:
+            return 'NumPurchaseOrders is None'
+    try:
+        purchase_orders = []
+        ic(fake.word())
+        for _ in range(NumPurchaseOrders):
+            purchase_order_id = random_id('PO')
+            purchase_requisition_id = random_id('PR')
+            status = random.choice(['Pending', 'Approved', 'Rejected', 'On-hold'])
+            created_date = random_date()
+            approved_date = random_date() if status == 'Approved' else None
+            supplier_id = random_id('SUP')
+            items = [
+                {"item_id": random_id('IT'), "description": fake.word(), "quantity": random.randint(1, 100), "unit_price": round(random.uniform(10, 1000), 2)} for _ in range(3)
+            ]
 
-        purchase_orders.append((
-            purchase_order_id,
-            purchase_requisition_id,
-            status,
-            created_date,
-            approved_date,
-            supplier_id,
-            items
-        ))
+            purchase_order = {
+                'purchase_order_id': purchase_order_id,
+                'purchase_requisition_id': purchase_requisition_id,
+                'status': status,
+                'created_date': created_date,
+                'approved_date': approved_date,
+                'supplier_id': supplier_id,
+                'items': json.dumps(items)
+            }
+            purchase_orders.append(purchase_order)
 
-    insert_query = text("""
-        INSERT INTO Finance.purchase_orders (purchase_order_id, purchase_requisition_id, status, created_date, approved_date, supplier_id, items)
-        VALUES (:purchase_order_id, :purchase_requisition_id, :status, :created_date, :approved_date, :supplier_id, :items)
-    """)
-    connection.execute(insert_query, purchase_orders)
-    connection.commit()
+      
+
+        insert_query = text("""
+            INSERT INTO Finance.purchase_orders (purchase_order_id, purchase_requisition_id, status, created_date, approved_date, supplier_id, items)
+            VALUES (:purchase_order_id, :purchase_requisition_id, :status, :created_date, :approved_date, :supplier_id, :items)
+        """)
+        connection.execute(insert_query, purchase_orders)
+        connection.commit()
+    except Exception as e:
+        print(f"An error occurred in insert_purchase_orders:: {e}")
 
 # Function to get all supplier IDs
 def get_all_supplier_ids():
@@ -566,16 +592,18 @@ def insert_invoices(num_invoices):
 
 def populate_table(num_records: int = 200):
 
+    connection = engine.connect()
+
     try:
-        insert_invoices(num_records)
-        insert_procurement_reports(num_records)
-        insert_negotiations(num_records)
-        insert_sourcing(num_records)
-        insert_procurement_reports(num_records)
-        insert_expense_reports(num_records)
-        insert_budgets(num_records)
+        # insert_invoices(num_records)
+        # insert_procurement_reports(num_records)
+        # insert_negotiations(num_records)
+        # insert_sourcing(num_records)
+        # insert_procurement_reports(num_records)
+        # insert_expense_reports(num_records)
+        # insert_budgets(num_records)
         insert_requisitions(num_records)
-        insert_purchase_orders(num_records)
+        # insert_purchase_orders(num_records)
 
     except Exception as e:
         print(f"An error occurred: {e}")
