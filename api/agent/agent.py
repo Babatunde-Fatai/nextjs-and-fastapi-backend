@@ -2,10 +2,10 @@ from langchain_openai import ChatOpenAI
 from typing import Annotated, List, Tuple, Union
 from langchain.tools import BaseTool, StructuredTool, Tool
 from langchain_experimental.tools import PythonREPLTool
-from .tools import  get_requisition_details, get_supplier_details
+from .tools import  get_requisition_details, get_supplier_data, get_procurement_data, get_invoice_data
 from .agent_creator import create_agent, agent_node
 from .supervisor_chain import supervisor_chain as SC
-from langchain_core.messages import BaseMessage, HumanMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 import operator
@@ -21,7 +21,7 @@ python_repl_tool = PythonREPLTool()
 llm = ChatOpenAI()
 
 #import tools
-tools = [get_supplier_details, get_requisition_details, python_repl_tool]
+tools = [get_supplier_data, get_requisition_details, get_procurement_data, get_invoice_data]
 
 members, supervisor_chain = SC(llm)
 
@@ -41,8 +41,14 @@ class AgentState(TypedDict):
 Suppliers_agent = create_agent(llm, tools, "You are an agent that manages and tracks the suppliers details for an organization")
 Suppliers_node = functools.partial(agent_node, agent=Suppliers_agent, name="Suppliers_Manager")
 
-requisition_agent = create_agent(llm, tools, "You are an AI sourcing assistant that helps us manage procurement requisitions by providing status updates, details, based on the requisition number provided")
+requisition_agent = create_agent(llm, tools, "You are an AI sourcing assistant that helps us manage requisitions by providing status updates, details, based on the requisition number provided")
 requisition_node = functools.partial(agent_node, agent=requisition_agent, name="requisition_Manager")
+
+procurement_agent = create_agent(llm, tools, "You are an AI assistant that helps us manage procurement reports based on the report IDs, report names, or generated dates provided")
+procurement_node = functools.partial(agent_node, agent=procurement_agent, name="procurement_Manager")
+
+invoice_agent = create_agent(llm, tools, "You are an AI assistant that helps us manage invoice reports based on the invoice IDs or supplier id provided")
+invoice_node = functools.partial(agent_node, agent=invoice_agent, name="invoice_Manager")
 
 ##NOTE: THIS PERFORMS ARBITRARY CODE EXECUTION. PROCEED WITH CAUTION
 # code_agent = create_agent(llm, [python_repl_tool], "You may generate safe python code to analyze data and generate charts using matplotlib.")
@@ -52,6 +58,8 @@ workflow = StateGraph(AgentState)
 # workflow.add_node("Lotto_Manager", lotto_node)
 workflow.add_node("requisition_Manager", requisition_node)
 workflow.add_node("Suppliers_Manager", Suppliers_node)
+workflow.add_node("procurement_Manager", procurement_node)
+workflow.add_node("invoice_Manager", invoice_node)
 workflow.add_node("supervisor", supervisor_chain)
 
 ##Create edges
@@ -72,18 +80,19 @@ graph = workflow.compile()
 
 #run it
 
+# config = {"recursion_limit": 20} #a config dictionary is defined for recursion limit
 config = {"recursion_limit": 20} #a config dictionary is defined for recursion limit
 
-# for s in graph.stream(
-#     {
-#         "messages": [
-#             HumanMessage(content="Get the staff detail for the staff named Babatunde")
-#         ]
-#     }, config=config
-# ):
-#     if "__end__" not in s:
-#         print(s)
-#         print("----")
+for s in graph.stream(
+    {
+        "messages": [
+            HumanMessage(content="Get the staff detail for the staff named Babatunde")
+        ]
+    }, config=config
+):
+    if "__end__" not in s:
+        print(s)
+        print("----")
 
 
 
@@ -94,7 +103,7 @@ def getResponse(query=""):
     final_response = graph.invoke(
     {
         "messages": [
-            HumanMessage(content=query)
+            SystemMessage(content=query)
         ]
     }, config=config
         )

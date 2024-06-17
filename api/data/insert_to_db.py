@@ -109,16 +109,6 @@ def create_tables():
                 selected_bid_amount NUMERIC
             );
         
-            CREATE TABLE IF NOT EXISTS finance.procurements (
-                procurement_id VARCHAR(20) PRIMARY KEY,
-                purchase_requisition_id VARCHAR(20),
-                purchase_order_id VARCHAR(20),
-                supplier_id VARCHAR(20),
-                items_procured JSONB,
-                procurement_status VARCHAR(20),
-                procurement_date DATE
-            );
-        
             CREATE TABLE IF NOT EXISTS finance.requisitions (
                     requisition_id VARCHAR(20) PRIMARY KEY,
                     created_by VARCHAR(50),
@@ -219,24 +209,23 @@ def insert_suppliers(num_suppliers):
         average_rating = round(random.uniform(1, 5), 1)
         on_time_delivery_rate = round(random.uniform(70, 100), 2)
 
-        suppliers.append((
-            supplier_id,
-            supplier_name,
-            contact_info,
-            total_orders,
-            total_spent,
-            average_rating,
-            on_time_delivery_rate
-        ))
+        supplier_data = {
+            'supplier_id': supplier_id,
+            'supplier_name': supplier_name,
+            'contact_info': json.dumps(contact_info),
+            'total_orders': total_orders,
+            'total_spent': total_spent,
+            'average_rating': average_rating,
+            'on_time_delivery_rate': on_time_delivery_rate
+        }
+        suppliers.append(supplier_data)
 
-    insert_query = text( """
-        INSERT INTO suppliers (supplier_id, supplier_name, contact_info, total_orders, total_spent, average_rating, on_time_delivery_rate)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """)
+    insert_query = text("""
+        INSERT INTO finance.suppliers (supplier_id, supplier_name, contact_info, total_orders, total_spent, average_rating, on_time_delivery_rate)
+        VALUES (:supplier_id, :supplier_name, :contact_info, :total_orders, :total_spent, :average_rating, :on_time_delivery_rate)
+    """)
     connection.execute(insert_query, suppliers)
-            
     connection.commit()
-    # close_connection()
 
 def insert_invoices(num_invoices):
     invoices = []
@@ -251,17 +240,18 @@ def insert_invoices(num_invoices):
         payment_date = random_date() if status == 'Paid' else None
         payment_method = random.choice(['Credit Card', 'Bank Transfer', 'Cash']) if status == 'Paid' else None
 
-        invoices.append((
-            invoice_id,
-            purchase_order_id,
-            supplier_id,
-            invoice_date,
-            due_date,
-            amount_due,
-            status,
-            payment_date,
-            payment_method
-        ))
+        invoice_data = {
+            'invoice_id': invoice_id,
+            'purchase_order_id': purchase_order_id,
+            'supplier_id': supplier_id,
+            'invoice_date': invoice_date,
+            'due_date': due_date,
+            'amount_due': amount_due,
+            'status': status,
+            'payment_date': payment_date,
+            'payment_method': payment_method
+        }
+        invoices.append(invoice_data)
 
     insert_query = text("""
         INSERT INTO Finance.invoices (invoice_id, purchase_order_id, supplier_id, invoice_date, due_date, amount_due, status, payment_date, payment_method)
@@ -269,7 +259,6 @@ def insert_invoices(num_invoices):
     """)
     connection.execute(insert_query, invoices)
     connection.commit()
-    # close_connection()
 
 def insert_procurement_reports(num_reports):
     procurement_reports = []
@@ -283,14 +272,15 @@ def insert_procurement_reports(num_reports):
             {"supplier_id": random_id('SUP'), "total_spent": round(random.uniform(1000, 5000), 2)} for _ in range(3)
         ]
 
-        procurement_reports.append((
-            report_id,
-            report_name,
-            generated_date,
-            total_orders,
-            total_spent,
-            top_suppliers
-        ))
+        report_data = {
+            'report_id': report_id,
+            'report_name': report_name,
+            'generated_date': generated_date,
+            'total_orders': total_orders,
+            'total_spent': total_spent,
+            'top_suppliers': json.dumps(top_suppliers)
+        }
+        procurement_reports.append(report_data)
 
     insert_query = text("""
         INSERT INTO Finance.procurement_reports (report_id, report_name, generated_date, total_orders, total_spent, top_suppliers)
@@ -298,7 +288,6 @@ def insert_procurement_reports(num_reports):
     """)
     connection.execute(insert_query, procurement_reports)
     connection.commit()
-    # close_connection()
 
 def insert_negotiations(num_negotiations):
     negotiations = []
@@ -311,15 +300,16 @@ def insert_negotiations(num_negotiations):
         negotiation_date = random_date()
         negotiation_status = random.choice(['Successful', 'Failed', 'In Progress'])
 
-        negotiations.append((
-            negotiation_id,
-            supplier_id,
-            purchase_order_id,
-            initial_offer,
-            final_agreement,
-            negotiation_date,
-            negotiation_status
-        ))
+        negotiation_data = {
+            'negotiation_id': negotiation_id,
+            'supplier_id': supplier_id,
+            'purchase_order_id': purchase_order_id,
+            'initial_offer': initial_offer,
+            'final_agreement': final_agreement,
+            'negotiation_date': negotiation_date,
+            'negotiation_status': negotiation_status
+        }
+        negotiations.append(negotiation_data)
 
     insert_query = text("""
         INSERT INTO Finance.negotiations (negotiation_id, supplier_id, purchase_order_id, initial_offer, final_agreement, negotiation_date, negotiation_status)
@@ -327,7 +317,6 @@ def insert_negotiations(num_negotiations):
     """)
     connection.execute(insert_query, negotiations)
     connection.commit()
-    # close_connection()
 
 def insert_sourcing(num_sourcing):
     sourcing_records = []
@@ -341,16 +330,17 @@ def insert_sourcing(num_sourcing):
         selected_supplier_id = random_id('SUP') if status == 'Closed' else None
         selected_bid_amount = round(random.uniform(1000, 5000), 2) if selected_supplier_id else None
 
-        sourcing_records.append((
-            sourcing_id,
-            sourcing_event,
-            created_date,
-            closing_date,
-            status,
-            bids_received,
-            selected_supplier_id,
-            selected_bid_amount
-        ))
+        sourcing_data = {
+            'sourcing_id': sourcing_id,
+            'sourcing_event': sourcing_event,
+            'created_date': created_date,
+            'closing_date': closing_date,
+            'status': status,
+            'bids_received': bids_received,
+            'selected_supplier_id': selected_supplier_id,
+            'selected_bid_amount': selected_bid_amount
+        }
+        sourcing_records.append(sourcing_data)
 
     insert_query = text("""
         INSERT INTO Finance.sourcing (sourcing_id, sourcing_event, created_date, closing_date, status, bids_received, selected_supplier_id, selected_bid_amount)
@@ -358,35 +348,6 @@ def insert_sourcing(num_sourcing):
     """)
     connection.execute(insert_query, sourcing_records)
     connection.commit()
-    # close_connection()
-
-def insert_procurement_reports(num_reports):
-    procurement_reports = []
-    for _ in range(num_reports):
-        report_id = random_id('REP')
-        report_name = fake.word()
-        generated_date = random_date()
-        total_orders = random.randint(10, 100)
-        total_spent = round(random.uniform(10000, 100000), 2)
-        top_suppliers = [
-            {"supplier_id": random_id('SUP'), "total_spent": round(random.uniform(1000, 5000), 2)} for _ in range(3)
-        ]
-
-        procurement_reports.append((
-            report_id,
-            report_name,
-            generated_date,
-            total_orders,
-            total_spent,
-            top_suppliers
-        ))
-
-    insert_query = text("""
-        INSERT INTO Finance.procurement_reports (report_id, report_name, generated_date, total_orders, total_spent, top_suppliers)
-        VALUES (:report_id, :report_name, :generated_date, :total_orders, :total_spent, :top_suppliers)
-    """)
-    connection.execute(insert_query, procurement_reports)
-    # connection.commit()
 
 def insert_expense_reports(num_reports):
     expense_reports = []
@@ -403,17 +364,18 @@ def insert_expense_reports(num_reports):
             {"item": fake.word(), "amount": round(random.uniform(10, 100), 2)} for _ in range(5)
         ]
 
-        expense_reports.append((
-            expense_report_id,
-            employee_id,
-            employee_name,
-            department,
-            report_date,
-            total_amount,
-            status,
-            approved_date,
-            expense_items
-        ))
+        expense_report_data = {
+            'expense_report_id': expense_report_id,
+            'employee_id': employee_id,
+            'employee_name': employee_name,
+            'department': department,
+            'report_date': report_date,
+            'total_amount': total_amount,
+            'status': status,
+            'approved_date': approved_date,
+            'expense_items': json.dumps(expense_items)
+        }
+        expense_reports.append(expense_report_data)
 
     insert_query = text("""
         INSERT INTO Finance.expense_reports (expense_report_id, employee_id, employee_name, department, report_date, total_amount, status, approved_date, expense_items)
@@ -421,7 +383,6 @@ def insert_expense_reports(num_reports):
     """)
     connection.execute(insert_query, expense_reports)
     connection.commit()
-    # close_connection()
 
 def insert_budgets(num_budgets):
     budgets = []
@@ -436,15 +397,16 @@ def insert_budgets(num_budgets):
             {"expense": fake.word(), "amount": round(random.uniform(100, 1000), 2)} for _ in range(5)
         ]
 
-        budgets.append((
-            budget_id,
-            department,
-            fiscal_year,
-            total_budget,
-            allocated_to_date,
-            remaining_budget,
-            expenses
-        ))
+        budget_data = {
+            'budget_id': budget_id,
+            'department': department,
+            'fiscal_year': fiscal_year,
+            'total_budget': total_budget,
+            'allocated_to_date': allocated_to_date,
+            'remaining_budget': remaining_budget,
+            'expenses': json.dumps(expenses)
+        }
+        budgets.append(budget_data)
 
     insert_query = text("""
         INSERT INTO Finance.budgets (budget_id, department, fiscal_year, total_budget, allocated_to_date, remaining_budget, expenses)
@@ -452,8 +414,6 @@ def insert_budgets(num_budgets):
     """)
     connection.execute(insert_query, budgets)
     connection.commit()
-    # close_connection()
-
 
 def insert_requisitions(NumRequisitions):
     try:
@@ -561,32 +521,7 @@ def get_all_purchase_order_ids():
     except Exception as e:
             handle_error(e)
             return []
-            
-  
 
-# Functions for other tables follow a similar structure
-def insert_invoices(num_invoices):
-    for _ in range(num_invoices):
-        invoice_id = random_id('INV')
-        purchase_order_id = random.choice(get_all_purchase_order_ids())
-        supplier_id = random.choice(get_all_supplier_ids())
-        invoice_date = random_date()
-        due_date = random_date()
-        amount_due = random.uniform(100, 10000)
-        status = random.choice(['Paid', 'Pending'])
-        payment_date = random_date() if status == 'Paid' else None
-        payment_method = random.choice(['Bank Transfer', 'Credit Card'])
-        insert_query = text( """
-            INSERT INTO invoices (invoice_id, purchase_order_id, supplier_id, invoice_date, due_date, amount_due, status, payment_date, payment_method)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """,
-            (invoice_id, purchase_order_id, supplier_id, invoice_date, due_date, amount_due, status, payment_date, payment_method)
-            )
-    
-    connection.execute(insert_query)
-            
-    connection.commit()
-    # close_connection()
 
 
 
@@ -595,15 +530,17 @@ def populate_table(num_records: int = 200):
     connection = engine.connect()
 
     try:
-        # insert_invoices(num_records)
-        # insert_procurement_reports(num_records)
-        # insert_negotiations(num_records)
-        # insert_sourcing(num_records)
-        # insert_procurement_reports(num_records)
-        # insert_expense_reports(num_records)
-        # insert_budgets(num_records)
-        insert_requisitions(num_records)
-        # insert_purchase_orders(num_records)
+        # insert_negotiations(num_records) #done
+        # insert_sourcing(num_records) #done
+        # insert_procurement_reports(num_records) #done
+        # insert_expense_reports(num_records) #done
+        # insert_budgets(num_records) #done
+        # insert_invoices(num_records) #done
+        # insert_purchase_orders(num_records) #done
+
+        insert_suppliers(num_records) #done
+
+        # insert_requisitions(num_records)
 
     except Exception as e:
         print(f"An error occurred: {e}")
