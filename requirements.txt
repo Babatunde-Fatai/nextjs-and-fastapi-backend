@@ -16,3 +16,4 @@ sqlalchemy
 logging
 redis
 python-multipart
+langserve[all]

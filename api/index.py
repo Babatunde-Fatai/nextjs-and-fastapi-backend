@@ -2,9 +2,11 @@ from fastapi import FastAPI
 from .agent.agent import getResponse
 from .data.insert_to_db import populate_table
 from .data.get_from_db import get_invoice_data, get_procurement_reports
+from langserve import add_routes
+
 
 # app = FastAPI(docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
-app = FastAPI(title="Sorcing Chatbot",
+app = FastAPI(title="Sourcing Chatbot",
               summary="A chatbot to assist staffs with their enqiry")
 
 @app.get("/api/py/healthcheck")
@@ -12,7 +14,7 @@ def healthchecker():
     return {"status": "success", "message": "Integrated FastAPI Framework with Next.js successfully!"}
 
 @app.get("/get/AI/response")
-def getresponse(query):
+def get_AI_response(query):
 
     answer = getResponse(query)
 

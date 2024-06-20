@@ -14,6 +14,8 @@ import functools
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.graph import StateGraph, END
 from icecream import ic
+from langserve import add_routes
+
 
 # This executes code locally, which can be unsafe
 python_repl_tool = PythonREPLTool()
@@ -83,20 +85,16 @@ graph = workflow.compile()
 # config = {"recursion_limit": 20} #a config dictionary is defined for recursion limit
 config = {"recursion_limit": 20} #a config dictionary is defined for recursion limit
 
-for s in graph.stream(
-    {
-        "messages": [
-            HumanMessage(content="Get the staff detail for the staff named Babatunde")
-        ]
-    }, config=config
-):
-    if "__end__" not in s:
-        print(s)
-        print("----")
-
-
-
-
+# for s in graph.stream(
+#     {
+#         "messages": [
+#             HumanMessage(content="Get the staff detail for the staff named Babatunde")
+#         ]
+#     }, config=config
+# ):
+#     if "__end__" not in s:
+#         print(s)
+#         print("----")
 
 
 def getResponse(query=""):
@@ -112,3 +110,20 @@ def getResponse(query=""):
     ic(final_response)
 
     return res
+
+# def defineRoute(app, query):
+
+#     add_routes(
+#     app,
+#     graph.invoke(
+#     {
+#         "messages": [
+#             SystemMessage(content=query)
+#         ]
+#     }, config=config
+#         ),
+#     path="/AI/chat"
+# )
+
+
+#     return graph

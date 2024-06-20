@@ -120,7 +120,7 @@ def get_supplier_data(identifiers, data_type=None):
             return 'Invalid data type provided'
 
         if not conditions:
-            return 'No valid identifiers provided'
+            return 'No valid identifier for the supplier provided'
 
         query = text("""
             SELECT supplier_id, supplier_name, contact_info, total_orders, total_spent, average_rating, on_time_delivery_rate
@@ -142,18 +142,12 @@ def get_supplier_data(identifiers, data_type=None):
             }
             supplier_data.append(supplier_dict)
         if not supplier_data:
-            return 'No record found for suppliers'
+            return f'No record found for the suppliers: {identifiers}'
         return supplier_data
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
         connection.close()
-
-
-
-
-
-
 
 @tool("procurement_details", return_direct=False)
 def get_procurement_data(identifiers, data_type=None):
@@ -234,7 +228,7 @@ def get_invoice_data(identifiers, data_type=None):
         data_type (str, optional): The type of identifier provided. Can be "invoice_id" or "supplier_id". If not provided, the function will attempt to determine the data type automatically.
         connection (sqlalchemy.engine.Connection): The SQLAlchemy connection object.
     Returns:
-        A list of dictionaries containing the retrieved invoice data, or an empty list if no matching invoices are found.
+        A list of dictionaries containing the retrieved invoice data, or an empty list if no matching invoices are found. 
     """
     connection = engine.connect()
     try:
